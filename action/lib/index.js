@@ -20,7 +20,7 @@ export default async function ({ token, delay, timeout }) {
   const { runId: run_id } = github.context
 
   // get workflow id and created date from run id
-  const { data: { workflow_id, created_at } } = await octokit.request('GET /repos/{owner}/{repo}/actions/runs/{run_id}', {
+  const { data: { created_at } } = await octokit.request('GET /repos/{owner}/{repo}/actions/runs/{run_id}', {
     ...github.context.repo,
     run_id
   })
@@ -31,7 +31,7 @@ export default async function ({ token, delay, timeout }) {
   core.info(`searching for workflow runs before ${before}`)
 
   // get previous runs
-  let waiting_for = await runs({ octokit, run_id, workflow_id, before })
+  let waiting_for = await runs({ octokit, run_id, before })
 
   if (waiting_for.length === 0) {
     core.info('no active run of this workflow found')
@@ -56,7 +56,7 @@ export default async function ({ token, delay, timeout }) {
     await sleep(delay)
 
     // get the data again
-    waiting_for = await runs({ octokit, run_id, workflow_id, before })
+    waiting_for = await runs({ octokit, run_id, before })
   }
 
   core.info('all runs in the queue completed!')
